@@ -1,0 +1,9 @@
+[package]
+name = "manifest-modifier"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+m3u8-rs = { version = "5.0.2" }
