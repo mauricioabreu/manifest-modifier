@@ -1,27 +1,29 @@
-use m3u8_rs::{MasterPlaylist};
+use m3u8_rs::MasterPlaylist;
 
 fn filter_fps(pl: MasterPlaylist, rate: f64) -> MasterPlaylist {
     let mut mpl = pl.clone();
-    mpl.variants = pl.variants
+    mpl.variants = pl
+        .variants
         .into_iter()
-        .filter( |v| v.frame_rate == Some(rate))
+        .filter(|v| v.frame_rate == Some(rate))
         .collect::<Vec<m3u8_rs::VariantStream>>();
     mpl
 }
 
 fn filter_bandwidth(pl: MasterPlaylist, min: u64, max: u64) -> MasterPlaylist {
     let mut mpl = pl.clone();
-    mpl.variants = pl.variants
+    mpl.variants = pl
+        .variants
         .into_iter()
-        .filter( |v| v.bandwidth >= min)
+        .filter(|v| v.bandwidth >= min)
         .collect::<Vec<m3u8_rs::VariantStream>>();
     mpl
 }
 
 #[cfg(test)]
 mod tests {
-    use std::io::Read;
     use super::*;
+    use std::io::Read;
 
     #[test]
     fn filter_60_fps() {
@@ -29,7 +31,7 @@ mod tests {
         let mut content: Vec<u8> = Vec::new();
         file.read_to_end(&mut content).unwrap();
 
-        if let Result::Ok((_, master_playlist)) =  m3u8_rs::parse_master_playlist(&content) {
+        if let Result::Ok((_, master_playlist)) = m3u8_rs::parse_master_playlist(&content) {
             let nmp = filter_fps(master_playlist, 60.0);
             assert_eq!(nmp.variants.len(), 2);
         };
@@ -41,7 +43,7 @@ mod tests {
         let mut content: Vec<u8> = Vec::new();
         file.read_to_end(&mut content).unwrap();
 
-        if let Result::Ok((_, master_playlist)) =  m3u8_rs::parse_master_playlist(&content) {
+        if let Result::Ok((_, master_playlist)) = m3u8_rs::parse_master_playlist(&content) {
             let nmp = filter_bandwidth(master_playlist, 800000, 0);
             assert_eq!(nmp.variants.len(), 3);
         }
