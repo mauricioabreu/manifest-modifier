@@ -1,5 +1,11 @@
 use m3u8_rs::MasterPlaylist;
 
+#[derive(Debug)]
+struct BandwidthFilter {
+    Min: Option<u64>,
+    Max: Option<u64>,
+}
+
 fn filter_fps(pl: MasterPlaylist, rate: f64) -> MasterPlaylist {
     let mut mpl = pl.clone();
     mpl.variants = pl
@@ -10,12 +16,15 @@ fn filter_fps(pl: MasterPlaylist, rate: f64) -> MasterPlaylist {
     mpl
 }
 
-fn filter_bandwidth(pl: MasterPlaylist, min: u64, max: u64) -> MasterPlaylist {
+fn filter_bandwidth(pl: MasterPlaylist, opts: BandwidthFilter) -> MasterPlaylist {
+    let min = opts.Min.unwrap_or(0);
+    let max = opts.Max.unwrap_or(u64::MAX);
+
     let mut mpl = pl.clone();
     mpl.variants = pl
         .variants
         .into_iter()
-        .filter(|v| v.bandwidth >= min)
+        .filter(|v| v.bandwidth >= min && v.bandwidth <= max)
         .collect::<Vec<m3u8_rs::VariantStream>>();
     mpl
 }
@@ -44,7 +53,13 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         if let Result::Ok((_, master_playlist)) = m3u8_rs::parse_master_playlist(&content) {
-            let nmp = filter_bandwidth(master_playlist, 800000, 0);
+            let nmp = filter_bandwidth(
+                master_playlist,
+                BandwidthFilter {
+                    Min: Some(800000),
+                    Max: None,
+                },
+            );
             assert_eq!(nmp.variants.len(), 3);
         }
     }
