@@ -63,4 +63,40 @@ mod tests {
 
         assert_eq!(nmp.variants.len(), 3);
     }
+
+    #[test]
+    fn filter_max_bandwidth() {
+        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
+        let mut content: Vec<u8> = Vec::new();
+        file.read_to_end(&mut content).unwrap();
+
+        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+        let nmp = filter_bandwidth(
+            master_playlist,
+            BandwidthFilter {
+                Min: None,
+                Max: Some(800000),
+            },
+        );
+
+        assert_eq!(nmp.variants.len(), 6);
+    }
+
+    #[test]
+    fn filter_min_and_max_bandwidth() {
+        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
+        let mut content: Vec<u8> = Vec::new();
+        file.read_to_end(&mut content).unwrap();
+
+        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+        let nmp = filter_bandwidth(
+            master_playlist,
+            BandwidthFilter {
+                Min: Some(800000),
+                Max: Some(2000000),
+            },
+        );
+
+        assert_eq!(nmp.variants.len(), 3);
+    }
 }
