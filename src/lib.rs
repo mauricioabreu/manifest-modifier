@@ -15,7 +15,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn filter_30_fps() {
+    fn filter_60_fps() {
         let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
         let mut content: Vec<u8> = Vec::new();
         file.read_to_end(&mut content).unwrap();
