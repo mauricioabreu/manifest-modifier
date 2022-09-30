@@ -40,10 +40,10 @@ mod tests {
         let mut content: Vec<u8> = Vec::new();
         file.read_to_end(&mut content).unwrap();
 
-        if let Result::Ok((_, master_playlist)) = m3u8_rs::parse_master_playlist(&content) {
-            let nmp = filter_fps(master_playlist, 60.0);
-            assert_eq!(nmp.variants.len(), 2);
-        };
+        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+        let nmp = filter_fps(master_playlist, 60.0);
+
+        assert_eq!(nmp.variants.len(), 2);
     }
 
     #[test]
@@ -52,15 +52,15 @@ mod tests {
         let mut content: Vec<u8> = Vec::new();
         file.read_to_end(&mut content).unwrap();
 
-        if let Result::Ok((_, master_playlist)) = m3u8_rs::parse_master_playlist(&content) {
-            let nmp = filter_bandwidth(
-                master_playlist,
-                BandwidthFilter {
-                    Min: Some(800000),
-                    Max: None,
-                },
-            );
-            assert_eq!(nmp.variants.len(), 3);
-        }
+        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+        let nmp = filter_bandwidth(
+            master_playlist,
+            BandwidthFilter {
+                Min: Some(800000),
+                Max: None,
+            },
+        );
+
+        assert_eq!(nmp.variants.len(), 3);
     }
 }
