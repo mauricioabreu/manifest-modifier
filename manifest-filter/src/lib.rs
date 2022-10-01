@@ -2,8 +2,8 @@ use m3u8_rs::MasterPlaylist;
 
 #[derive(Debug)]
 pub struct BandwidthFilter {
-    pub Min: Option<u64>,
-    pub Max: Option<u64>,
+    pub min: Option<u64>,
+    pub max: Option<u64>,
 }
 
 pub fn filter_fps(pl: MasterPlaylist, rate: f64) -> MasterPlaylist {
@@ -17,8 +17,8 @@ pub fn filter_fps(pl: MasterPlaylist, rate: f64) -> MasterPlaylist {
 }
 
 pub fn filter_bandwidth(pl: MasterPlaylist, opts: BandwidthFilter) -> MasterPlaylist {
-    let min = opts.Min.unwrap_or(0);
-    let max = opts.Max.unwrap_or(u64::MAX);
+    let min = opts.min.unwrap_or(0);
+    let max = opts.max.unwrap_or(u64::MAX);
 
     let mut mpl = pl.clone();
     mpl.variants = pl
@@ -56,8 +56,8 @@ mod tests {
         let nmp = filter_bandwidth(
             master_playlist,
             BandwidthFilter {
-                Min: Some(800000),
-                Max: None,
+                min: Some(800000),
+                max: None,
             },
         );
 
@@ -74,8 +74,8 @@ mod tests {
         let nmp = filter_bandwidth(
             master_playlist,
             BandwidthFilter {
-                Min: None,
-                Max: Some(800000),
+                min: None,
+                max: Some(800000),
             },
         );
 
@@ -92,8 +92,8 @@ mod tests {
         let nmp = filter_bandwidth(
             master_playlist,
             BandwidthFilter {
-                Min: Some(800000),
-                Max: Some(2000000),
+                min: Some(800000),
+                max: Some(2000000),
             },
         );
 
