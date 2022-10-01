@@ -6,4 +6,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-m3u8-rs = { version = "5.0.2" }
+m3u8-rs = "5.0.2"
