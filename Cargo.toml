@@ -1,4 +1,5 @@
 [workspace]
 members = [
-    "manifest-filter"
+    "manifest-server",
+    "manifest-filter",
 ]
