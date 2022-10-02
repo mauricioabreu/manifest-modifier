@@ -23,8 +23,8 @@ async fn modify_manifest(params: Query<Params>, body: Bytes) -> impl IntoRespons
             let mpl = manifest_filter::filter_bandwidth(
                 pl,
                 manifest_filter::BandwidthFilter {
-                    min: Some(params.min_bitrate),
-                    max: Some(params.max_bitrate),
+                    min: params.min_bitrate,
+                    max: params.max_bitrate,
                 },
             );
             let mut v: Vec<u8> = Vec::new();
@@ -38,6 +38,6 @@ async fn modify_manifest(params: Query<Params>, body: Bytes) -> impl IntoRespons
 
 #[derive(Debug, Deserialize, Default)]
 struct Params {
-    min_bitrate: u64,
-    max_bitrate: u64,
+    min_bitrate: Option<u64>,
+    max_bitrate: Option<u64>,
 }
