@@ -29,7 +29,8 @@ async fn modify_manifest(params: Query<Params>, body: Bytes) -> impl IntoRespons
             );
             let mut v: Vec<u8> = Vec::new();
             mpl.write_to(&mut v).unwrap();
-            (StatusCode::OK, format!("{}", String::from_utf8(v).unwrap()))
+
+            (StatusCode::OK, String::from_utf8(v).unwrap())
         }
         Err(e) => (StatusCode::BAD_REQUEST, e),
     }
