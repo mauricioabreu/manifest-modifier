@@ -1,10 +1,5 @@
 use axum::{
-    body::Bytes,
-    extract::Query,
-    http::{StatusCode},
-    response::IntoResponse,
-    routing::post,
-    Router,
+    body::Bytes, extract::Query, http::StatusCode, response::IntoResponse, routing::post, Router,
 };
 use serde::Deserialize;
 use std::net::SocketAddr;
