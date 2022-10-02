@@ -14,14 +14,20 @@ pub fn load_master(content: &[u8]) -> Result<MasterPlaylist, String> {
     }
 }
 
-pub fn filter_fps(pl: MasterPlaylist, rate: f64) -> MasterPlaylist {
-    let mut mpl = pl.clone();
-    mpl.variants = pl
-        .variants
-        .into_iter()
-        .filter(|v| v.frame_rate == Some(rate))
-        .collect::<Vec<m3u8_rs::VariantStream>>();
-    mpl
+pub fn filter_fps(pl: MasterPlaylist, rate: Option<f64>) -> MasterPlaylist {
+    match rate {
+        Some(r) => {
+            let mut mpl = pl.clone();
+            mpl.variants = pl
+                .variants
+                .into_iter()
+                .filter(|v| v.frame_rate == Some(r))
+                .collect::<Vec<m3u8_rs::VariantStream>>();
+            mpl
+        },
+        None => pl,
+    }
+
 }
 
 pub fn filter_bandwidth(pl: MasterPlaylist, opts: BandwidthFilter) -> MasterPlaylist {
@@ -49,7 +55,7 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let nmp = filter_fps(master_playlist, 60.0);
+        let nmp = filter_fps(master_playlist, Some(60.0));
 
         assert_eq!(nmp.variants.len(), 2);
     }

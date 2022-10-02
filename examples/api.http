@@ -1,5 +1,11 @@
 ### Bandwidth filter
-POST http://localhost:3000?min_bitrate=800000&max_bitrate=1500000
-Content-Type: application/json
+POST http://localhost:3000?min_bitrate=800000&max_bitrate=2000000
+Content-Type: text/html; charset=UTF-8
+
+< ../manifest-filter/manifests/master.m3u8
+
+### Frame rate filter
+POST http://localhost:3000?rate=60
+Content-Type: text/html; charset=UTF-8
 
 < ../manifest-filter/manifests/master.m3u8

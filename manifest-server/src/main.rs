@@ -20,13 +20,15 @@ async fn main() {
 async fn modify_manifest(params: Query<Params>, body: Bytes) -> impl IntoResponse {
     match manifest_filter::load_master(&body) {
         Ok(pl) => {
-            let mpl = manifest_filter::filter_bandwidth(
+            let mut mpl = manifest_filter::filter_bandwidth(
                 pl,
                 manifest_filter::BandwidthFilter {
                     min: params.min_bitrate,
                     max: params.max_bitrate,
                 },
             );
+            mpl = manifest_filter::filter_fps(mpl, params.rate);
+
             let mut v: Vec<u8> = Vec::new();
             mpl.write_to(&mut v).unwrap();
 
@@ -40,4 +42,5 @@ async fn modify_manifest(params: Query<Params>, body: Bytes) -> impl IntoRespons
 struct Params {
     min_bitrate: Option<u64>,
     max_bitrate: Option<u64>,
+    rate: Option<f64>,
 }
