@@ -1,9 +1,17 @@
-use m3u8_rs::MasterPlaylist;
+use m3u8_rs::{MasterPlaylist, Playlist};
 
 #[derive(Debug)]
 pub struct BandwidthFilter {
     pub min: Option<u64>,
     pub max: Option<u64>,
+}
+
+pub fn load_master(content: &[u8]) -> Result<MasterPlaylist, String> {
+    match m3u8_rs::parse_playlist(content) {
+        Result::Ok((_, Playlist::MasterPlaylist(pl))) => Ok(pl),
+        Result::Ok((_, Playlist::MediaPlaylist(_))) => Err("Must be a master playlist".to_string()),
+        Result::Err(e) => Err(e.to_string()),
+    }
 }
 
 pub fn filter_fps(pl: MasterPlaylist, rate: f64) -> MasterPlaylist {

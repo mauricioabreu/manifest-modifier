@@ -1,0 +1,5 @@
+### Bandwidth filter
+POST http://localhost:3000?min_bitrate=60000&max_bitrate=1000000
+Content-Type: application/json
+
+< ../manifest-filter/manifests/master.m3u8
