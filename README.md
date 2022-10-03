@@ -2,4 +2,100 @@
 
 *Manifest Modifier* is a work-in-progress project to modify video manifests.
 
-Why? Video is a bit complex. Some manifest won't run on some devices because of the frame rate, or the bitrate, or other tags that may affect playback.
+Why? Video is a bit complex. Some manifests won't run on some devices because of the frame rate, or the bitrate, or other tags that may affect playback.
+
+## Running
+
+There are two ways to use this project: running it as a server or using it as a library.
+
+## Features
+
+**Bandwidth** - filter variants based on min and max values.
+
+Request:
+
+```
+curl --request POST \
+  --url 'http://localhost:3000/?min_bitrate=800000&max_bitrate=2000000' \
+  --header 'content-type: text/html; charset=UTF-8' \
+  --header 'user-agent: vscode-restclient' \
+  --data '< ../manifest-filter/manifests/master.m3u8'
+```
+
+Response:
+
+```
+#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-aach-96",LANGUAGE="en",NAME="English",DEFAULT=YES,AUTOSELECT=YES,CHANNELS="2"
+#EXT-X-STREAM-INF:BANDWIDTH=800000,AVERAGE-BANDWIDTH=800000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=768x432,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=1320960.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1500000,AVERAGE-BANDWIDTH=1500000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=1280x720,FRAME-RATE=60,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=3092992.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2000000,AVERAGE-BANDWIDTH=2000000,CODECS="mp4a.40.5,avc1.640029",RESOLUTION=1920x1080,FRAME-RATE=60,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=4686976.m3u8
+```
+
+As you can see, the original playlist was slightly different:
+
+```
+#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-aach-96",LANGUAGE="en",NAME="English",DEFAULT=YES,AUTOSELECT=YES,CHANNELS="2"
+#EXT-X-STREAM-INF:BANDWIDTH=600000,AVERAGE-BANDWIDTH=600000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=384x216,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=249984.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=800000,AVERAGE-BANDWIDTH=800000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=768x432,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=1320960.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1500000,AVERAGE-BANDWIDTH=1500000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=1280x720,FRAME-RATE=60,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=3092992.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2000000,AVERAGE-BANDWIDTH=2000000,CODECS="mp4a.40.5,avc1.640029",RESOLUTION=1920x1080,FRAME-RATE=60,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=4686976.m3u8
+#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=37000,CODECS="avc1.64001F",RESOLUTION=384x216,URI="keyframes/variant-video=249984.m3u8"
+#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=193000,CODECS="avc1.64001F",RESOLUTION=768x432,URI="keyframes/variant-video=1320960.m3u8"
+#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=296000,CODECS="avc1.64001F",RESOLUTION=1280x720,URI="keyframes/variant-video=2029952.m3u8"
+#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=684000,CODECS="avc1.640029",RESOLUTION=1920x1080,URI="keyframes/variant-video=4686976.m3u8"
+```
+
+**Frame rate** - filter variants based on a predefined *fps*:
+
+Request:
+
+```
+curl --request POST \
+  --url 'http://localhost:3000/?rate=60' \
+  --header 'content-type: text/html; charset=UTF-8' \
+  --header 'user-agent: vscode-restclient' \
+  --data '< ../manifest-filter/manifests/master.m3u8'
+```
+
+Response:
+
+```
+#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-aach-96",LANGUAGE="en",NAME="English",DEFAULT=YES,AUTOSELECT=YES,CHANNELS="2"
+#EXT-X-STREAM-INF:BANDWIDTH=1500000,AVERAGE-BANDWIDTH=1500000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=1280x720,FRAME-RATE=60,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=3092992.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2000000,AVERAGE-BANDWIDTH=2000000,CODECS="mp4a.40.5,avc1.640029",RESOLUTION=1920x1080,FRAME-RATE=60,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=4686976.m3u8
+```
+
+Original playlist:
+
+```
+#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-aach-96",LANGUAGE="en",NAME="English",DEFAULT=YES,AUTOSELECT=YES,CHANNELS="2"
+#EXT-X-STREAM-INF:BANDWIDTH=600000,AVERAGE-BANDWIDTH=600000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=384x216,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=249984.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=800000,AVERAGE-BANDWIDTH=800000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=768x432,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=1320960.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1500000,AVERAGE-BANDWIDTH=1500000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=1280x720,FRAME-RATE=60,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=3092992.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2000000,AVERAGE-BANDWIDTH=2000000,CODECS="mp4a.40.5,avc1.640029",RESOLUTION=1920x1080,FRAME-RATE=60,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=4686976.m3u8
+#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=37000,CODECS="avc1.64001F",RESOLUTION=384x216,URI="keyframes/variant-video=249984.m3u8"
+#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=193000,CODECS="avc1.64001F",RESOLUTION=768x432,URI="keyframes/variant-video=1320960.m3u8"
+#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=296000,CODECS="avc1.64001F",RESOLUTION=1280x720,URI="keyframes/variant-video=2029952.m3u8"
+#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=684000,CODECS="avc1.640029",RESOLUTION=1920x1080,URI="keyframes/variant-video=4686976.m3u8"
+```
