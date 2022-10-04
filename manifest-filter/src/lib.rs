@@ -24,10 +24,9 @@ pub fn filter_fps(pl: MasterPlaylist, rate: Option<f64>) -> MasterPlaylist {
                 .filter(|v| v.frame_rate == Some(r))
                 .collect::<Vec<m3u8_rs::VariantStream>>();
             mpl
-        },
+        }
         None => pl,
     }
-
 }
 
 pub fn filter_bandwidth(pl: MasterPlaylist, opts: BandwidthFilter) -> MasterPlaylist {
