@@ -167,6 +167,21 @@ mod tests {
     }
 
     #[test]
+    fn filter_dvr_with_long_duration() {
+        let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
+        let mut content: Vec<u8> = Vec::new();
+        file.read_to_end(&mut content).unwrap();
+
+        let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
+        let nmp = filter_dvr(
+            media_playlist.clone(),
+            Some(u64::MAX),
+        );
+
+        assert_eq!(nmp.segments.len(), media_playlist.segments.len());
+    }
+
+    #[test]
     fn trim_media_playlist_with_start_only() {
         let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
         let mut content: Vec<u8> = Vec::new();
