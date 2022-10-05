@@ -72,6 +72,7 @@ pub fn filter_dvr(pl: MediaPlaylist, seconds: Option<u64>) -> MediaPlaylist {
                 break;
             }
             mpl.segments = segments;
+            mpl.media_sequence += (pl.segments.len() - mpl.segments.len()) as u64;
             mpl
         }
         None => pl,
@@ -87,6 +88,7 @@ pub fn trim(pl: MediaPlaylist, opts: TrimFilter) -> MediaPlaylist {
     let segments = &pl.segments[start as usize..end as usize];
     let mut mpl = pl.clone();
     mpl.segments = segments.to_vec();
+    mpl.media_sequence += (pl.segments.len() - mpl.segments.len()) as u64;
     mpl
 }
 
@@ -171,6 +173,7 @@ mod tests {
         let nmp = filter_dvr(media_playlist, Some(15));
 
         assert_eq!(nmp.segments.len(), 3);
+        assert_eq!(nmp.media_sequence, 320035373);
     }
 
     #[test]
@@ -183,6 +186,7 @@ mod tests {
         let nmp = filter_dvr(media_playlist.clone(), Some(u64::MAX));
 
         assert_eq!(nmp.segments.len(), media_playlist.segments.len());
+        assert_eq!(nmp.media_sequence, 320035356);
     }
 
     #[test]
@@ -201,6 +205,7 @@ mod tests {
         );
 
         assert_eq!(nmp.segments.len(), 15);
+        assert_eq!(nmp.media_sequence, 320035361);
     }
 
     #[test]
@@ -219,6 +224,7 @@ mod tests {
         );
 
         assert_eq!(nmp.segments.len(), 5);
+        assert_eq!(nmp.media_sequence, 320035371);
     }
 
     #[test]
@@ -237,5 +243,6 @@ mod tests {
         );
 
         assert_eq!(nmp.segments.len(), 13);
+        assert_eq!(nmp.media_sequence, 320035363);
     }
 }
