@@ -16,7 +16,7 @@ Request:
 
 ```
 curl --request POST \
-  --url 'http://localhost:3000/?min_bitrate=800000&max_bitrate=2000000' \
+  --url 'http://localhost:3000/master?min_bitrate=800000&max_bitrate=2000000' \
   --header 'content-type: text/html; charset=UTF-8' \
   --header 'user-agent: vscode-restclient' \
   --data '< ../manifest-filter/manifests/master.m3u8'
@@ -62,7 +62,7 @@ Request:
 
 ```
 curl --request POST \
-  --url 'http://localhost:3000/?rate=60' \
+  --url 'http://localhost:3000/master?rate=60' \
   --header 'content-type: text/html; charset=UTF-8' \
   --header 'user-agent: vscode-restclient' \
   --data '< ../manifest-filter/manifests/master.m3u8'

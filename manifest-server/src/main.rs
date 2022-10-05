@@ -8,7 +8,7 @@ use std::net::SocketAddr;
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    let app = Router::new().route("/", post(modify_manifest));
+    let app = Router::new().route("/master", post(modify_master));
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
@@ -17,7 +17,7 @@ async fn main() {
         .unwrap();
 }
 
-async fn modify_manifest(params: Query<Params>, body: Bytes) -> impl IntoResponse {
+async fn modify_master(params: Query<Params>, body: Bytes) -> impl IntoResponse {
     match manifest_filter::load_master(&body) {
         Ok(pl) => {
             let mut mpl = manifest_filter::filter_bandwidth(

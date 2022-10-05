@@ -1,4 +1,4 @@
-use m3u8_rs::{MasterPlaylist, MediaPlaylist, Playlist, MediaSegment};
+use m3u8_rs::{MasterPlaylist, MediaPlaylist, MediaSegment, Playlist};
 
 #[derive(Debug)]
 pub struct BandwidthFilter {
@@ -50,12 +50,12 @@ pub fn filter_bandwidth(pl: MasterPlaylist, opts: BandwidthFilter) -> MasterPlay
 
 pub fn filter_dvr(pl: MediaPlaylist, seconds: Option<u64>) -> MediaPlaylist {
     let mut acc = 0;
-    let mut mpl= pl.clone();
+    let mut mpl = pl.clone();
 
     let mut segments: Vec<MediaSegment> = Vec::new();
     match seconds {
         Some(s) => {
-            for segment in pl.segments.iter().rev()  {
+            for segment in pl.segments.iter().rev() {
                 acc += segment.duration as u64;
                 if acc <= s {
                     segments.push(segment.clone());
@@ -66,7 +66,7 @@ pub fn filter_dvr(pl: MediaPlaylist, seconds: Option<u64>) -> MediaPlaylist {
             mpl.segments = segments;
             mpl
         }
-        None => pl
+        None => pl,
     }
 }
 
@@ -75,7 +75,7 @@ pub fn trim(pl: MediaPlaylist, opts: TrimFilter) -> MediaPlaylist {
     let end = opts.end.unwrap_or(pl.segments.len().try_into().unwrap());
 
     let segments = &pl.segments[start as usize..end as usize];
-    let mut mpl= pl.clone();
+    let mut mpl = pl.clone();
     mpl.segments = segments.to_vec();
     mpl
 }
@@ -158,10 +158,7 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let nmp = filter_dvr(
-            media_playlist,
-            Some(15),
-        );
+        let nmp = filter_dvr(media_playlist, Some(15));
 
         assert_eq!(nmp.segments.len(), 3);
     }
@@ -173,10 +170,7 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let nmp = filter_dvr(
-            media_playlist.clone(),
-            Some(u64::MAX),
-        );
+        let nmp = filter_dvr(media_playlist.clone(), Some(u64::MAX));
 
         assert_eq!(nmp.segments.len(), media_playlist.segments.len());
     }
@@ -198,7 +192,6 @@ mod tests {
 
         assert_eq!(nmp.segments.len(), 15);
     }
-
 
     #[test]
     fn trim_media_playlist_with_end_only() {
