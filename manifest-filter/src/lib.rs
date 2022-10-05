@@ -1,4 +1,4 @@
-use m3u8_rs::{MasterPlaylist, MediaPlaylist, Playlist};
+use m3u8_rs::{MasterPlaylist, MediaPlaylist, Playlist, MediaSegment};
 
 #[derive(Debug)]
 pub struct BandwidthFilter {
@@ -46,6 +46,28 @@ pub fn filter_bandwidth(pl: MasterPlaylist, opts: BandwidthFilter) -> MasterPlay
         .filter(|v| v.bandwidth >= min && v.bandwidth <= max)
         .collect::<Vec<m3u8_rs::VariantStream>>();
     mpl
+}
+
+pub fn filter_dvr(pl: MediaPlaylist, seconds: Option<u64>) -> MediaPlaylist {
+    let mut acc = 0;
+    let mut mpl= pl.clone();
+
+    let mut segments: Vec<MediaSegment> = Vec::new();
+    match seconds {
+        Some(s) => {
+            for segment in pl.segments.iter().rev()  {
+                acc += segment.duration as u64;
+                if acc <= s {
+                    segments.push(segment.clone());
+                    continue;
+                }
+                break;
+            }
+            mpl.segments = segments;
+            mpl
+        }
+        None => pl
+    }
 }
 
 pub fn trim(pl: MediaPlaylist, opts: TrimFilter) -> MediaPlaylist {
@@ -127,6 +149,21 @@ mod tests {
         );
 
         assert_eq!(nmp.variants.len(), 3);
+    }
+
+    #[test]
+    fn filter_dvr_with_short_duration() {
+        let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
+        let mut content: Vec<u8> = Vec::new();
+        file.read_to_end(&mut content).unwrap();
+
+        let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
+        let nmp = filter_dvr(
+            media_playlist,
+            Some(15),
+        );
+
+        assert_eq!(nmp.segments.len(), 3);
     }
 
     #[test]
