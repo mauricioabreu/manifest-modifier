@@ -10,6 +10,8 @@ There are two ways to use this project: running it as a server or using it as a 
 
 ## Features
 
+### Master playlist
+
 **Bandwidth** - filter variants based on min and max values.
 
 Request:
@@ -98,4 +100,90 @@ variant-audio_1=96000-video=4686976.m3u8
 #EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=193000,CODECS="avc1.64001F",RESOLUTION=768x432,URI="keyframes/variant-video=1320960.m3u8"
 #EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=296000,CODECS="avc1.64001F",RESOLUTION=1280x720,URI="keyframes/variant-video=2029952.m3u8"
 #EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=684000,CODECS="avc1.640029",RESOLUTION=1920x1080,URI="keyframes/variant-video=4686976.m3u8"
+```
+
+### Media playlist
+
+**DVR** - remove segments (backwards) based on the duration (seconds)
+
+```
+curl --request POST \
+  --url 'http://localhost:3000/media?dvr=15' \
+  --header 'content-type: text/html; charset=UTF-8' \
+  --header 'user-agent: vscode-restclient' \
+  --data '< ../manifest-filter/manifests/media.m3u8'
+```
+
+Response:
+
+```
+#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-INDEPENDENT-SEGMENTS
+#EXT-X-TARGETDURATION:8
+#EXT-X-MEDIA-SEQUENCE:320035356
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035703.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035702.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-09-15T14:01:39.133333+00:00
+#EXT-X-CUE-IN
+#EXTINF:5.8666, no desc
+variant-audio_1=96000-video=249984-320035701.ts
+```
+
+Origin playlist:
+
+```
+#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA-SEQUENCE:320035356
+#EXT-X-INDEPENDENT-SEGMENTS
+#EXT-X-TARGETDURATION:8
+#EXT-X-PROGRAM-DATE-TIME:2020-09-15T13:32:55Z
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035684.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035685.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035686.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035687.ts
+#EXTINF:4.1333, no desc
+variant-audio_1=96000-video=249984-320035688.ts
+#EXT-X-DATERANGE:ID="4026531847",START-DATE="2020-09-15T14:00:39.133333Z",PLANNED-DURATION=60,SCTE35-OUT=0xFC3025000000000BB800FFF01405F00000077FEFFE0AF311F0FE005265C0000101010000817C918E
+#EXT-X-CUE-OUT:60
+#EXT-X-PROGRAM-DATE-TIME:2020-09-15T14:00:39.133333Z
+#EXTINF:5.8666, no desc
+variant-audio_1=96000-video=249984-320035689.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035690.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035691.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035692.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035693.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035694.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035695.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035696.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035697.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035698.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035699.ts
+#EXTINF:4.1333, no desc
+variant-audio_1=96000-video=249984-320035700.ts
+#EXT-X-CUE-IN
+#EXT-X-PROGRAM-DATE-TIME:2020-09-15T14:01:39.133333Z
+#EXTINF:5.8666, no desc
+variant-audio_1=96000-video=249984-320035701.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035702.ts
+#EXTINF:5, no desc
+variant-audio_1=96000-video=249984-320035703.ts
 ```
