@@ -72,7 +72,9 @@ pub fn filter_dvr(pl: MediaPlaylist, seconds: Option<u64>) -> MediaPlaylist {
 
 pub fn trim(pl: MediaPlaylist, opts: TrimFilter) -> MediaPlaylist {
     let start = opts.start.unwrap_or(0);
-    let end = opts.end.unwrap_or(pl.segments.len().try_into().unwrap());
+    let end = opts
+        .end
+        .unwrap_or_else(|| pl.segments.len().try_into().unwrap());
 
     let segments = &pl.segments[start as usize..end as usize];
     let mut mpl = pl.clone();
