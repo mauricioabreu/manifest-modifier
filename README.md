@@ -1,3 +1,5 @@
+[![test](https://github.com/mauricioabreu/manifest-modifier/actions/workflows/rust.yml/badge.svg)](https://github.com/mauricioabreu/manifest-modifier/actions/workflows/rust.yml)
+
 # Manifest modifier
 
 *Manifest Modifier* is a work-in-progress project to modify video manifests.
