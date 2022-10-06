@@ -189,3 +189,15 @@ variant-audio_1=96000-video=249984-320035702.ts
 #EXTINF:5, no desc
 variant-audio_1=96000-video=249984-320035703.ts
 ```
+
+## Tests
+
+```
+cargo test
+```
+
+## Lint
+
+```
+cargo clippy
+```
