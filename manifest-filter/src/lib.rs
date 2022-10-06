@@ -1,4 +1,4 @@
-use m3u8_rs::{MasterPlaylist, MediaPlaylist, MediaSegment, Playlist};
+use m3u8_rs::{MasterPlaylist, MediaPlaylist, Playlist};
 
 #[derive(Debug)]
 pub struct BandwidthFilter {
@@ -60,18 +60,18 @@ pub fn filter_dvr(pl: MediaPlaylist, seconds: Option<u64>) -> MediaPlaylist {
     let mut acc = 0;
     let mut mpl = pl.clone();
 
-    let mut segments: Vec<MediaSegment> = Vec::new();
     match seconds {
         Some(s) => {
-            for segment in pl.segments.iter().rev() {
-                acc += segment.duration as u64;
-                if acc <= s {
-                    segments.push(segment.clone());
-                    continue;
-                }
-                break;
-            }
-            mpl.segments = segments;
+            mpl.segments = pl
+                .segments
+                .iter()
+                .rev()
+                .take_while(|segment| {
+                    acc += segment.duration as u64;
+                    acc <= s
+                })
+                .cloned()
+                .collect();
             mpl.media_sequence += (pl.segments.len() - mpl.segments.len()) as u64;
             mpl
         }
