@@ -2,8 +2,8 @@ use axum::{
     body::Bytes, extract::Query, http::StatusCode, response::IntoResponse, routing::post, Router,
 };
 use serde::Deserialize;
-use std::net::SocketAddr;
 use std::env;
+use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() {
