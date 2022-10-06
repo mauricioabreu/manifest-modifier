@@ -3,6 +3,7 @@ use axum::{
 };
 use serde::Deserialize;
 use std::net::SocketAddr;
+use std::env;
 
 #[tokio::main]
 async fn main() {
@@ -11,9 +12,10 @@ async fn main() {
     let app = Router::new()
         .route("/master", post(modify_master))
         .route("/media", post(modify_media));
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    tracing::debug!("listening on {}", addr);
-    axum::Server::bind(&addr)
+    let addr = env::var("LISTEN_ADDRESS").unwrap();
+    let socket_addr = addr.parse::<SocketAddr>().unwrap();
+    tracing::debug!("listening on {}", socket_addr);
+    axum::Server::bind(&socket_addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
