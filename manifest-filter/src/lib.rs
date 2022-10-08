@@ -38,19 +38,10 @@ pub struct Media {
 
 impl Master {
     pub fn filter_fps(&mut self, rate: Option<f64>) -> &mut Self {
-        match rate {
-            Some(r) => {
-                self.playlist.variants = self
-                    .playlist
-                    .clone()
-                    .variants
-                    .into_iter()
-                    .filter(|v| v.frame_rate == Some(r))
-                    .collect::<Vec<m3u8_rs::VariantStream>>();
-                self
-            }
-            None => self,
+        if let Some(r) = rate {
+            self.playlist.variants.retain(|v| v.frame_rate == Some(r));
         }
+        self
     }
 
     pub fn filter_bandwidth(&mut self, opts: BandwidthFilter) -> &mut Self {
