@@ -48,13 +48,7 @@ impl Master {
         let min = opts.min.unwrap_or(0);
         let max = opts.max.unwrap_or(u64::MAX);
 
-        self.playlist.variants = self
-            .playlist
-            .clone()
-            .variants
-            .into_iter()
-            .filter(|v| v.bandwidth >= min && v.bandwidth <= max)
-            .collect::<Vec<m3u8_rs::VariantStream>>();
+        self.playlist.variants.retain(|v| v.bandwidth >= min && v.bandwidth <= max);
         self
     }
 }
