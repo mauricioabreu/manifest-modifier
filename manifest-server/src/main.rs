@@ -24,17 +24,16 @@ async fn main() {
 async fn modify_master(params: Query<Params>, body: Bytes) -> impl IntoResponse {
     match manifest_filter::load_master(&body) {
         Ok(pl) => {
-            let mut mpl = manifest_filter::filter_bandwidth(
-                pl,
-                manifest_filter::BandwidthFilter {
+            let mut master = manifest_filter::Master { playlist: pl };
+            master
+                .filter_bandwidth(manifest_filter::BandwidthFilter {
                     min: params.min_bitrate,
                     max: params.max_bitrate,
-                },
-            );
-            mpl = manifest_filter::filter_fps(mpl, params.rate);
+                })
+                .filter_fps(params.rate);
 
             let mut v: Vec<u8> = Vec::new();
-            mpl.write_to(&mut v).unwrap();
+            master.playlist.write_to(&mut v).unwrap();
 
             (StatusCode::OK, String::from_utf8(v).unwrap())
         }
@@ -45,17 +44,16 @@ async fn modify_master(params: Query<Params>, body: Bytes) -> impl IntoResponse 
 async fn modify_media(params: Query<Params>, body: Bytes) -> impl IntoResponse {
     match manifest_filter::load_media(&body) {
         Ok(pl) => {
-            let mut mpl = manifest_filter::filter_dvr(pl, params.dvr);
-            mpl = manifest_filter::trim(
-                mpl,
-                manifest_filter::TrimFilter {
+            let mut media = manifest_filter::Media { playlist: pl };
+            media
+                .filter_dvr(params.dvr)
+                .trim(manifest_filter::TrimFilter {
                     start: params.trim_start,
                     end: params.trim_end,
-                },
-            );
+                });
 
             let mut v: Vec<u8> = Vec::new();
-            mpl.write_to(&mut v).unwrap();
+            media.playlist.write_to(&mut v).unwrap();
 
             (StatusCode::OK, String::from_utf8(v).unwrap())
         }

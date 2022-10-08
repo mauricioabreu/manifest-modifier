@@ -1,17 +1,17 @@
 ### Bandwidth filter
 POST http://localhost:3000/master?min_bitrate=800000&max_bitrate=2000000
-Content-Type: text/html; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8
 
 < ../manifest-filter/manifests/master.m3u8
 
 ### Frame rate filter
 POST http://localhost:3000/master?rate=60
-Content-Type: text/html; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8
 
 < ../manifest-filter/manifests/master.m3u8
 
 ### Filter DVR
 POST http://localhost:3000/media?dvr=15
-Content-Type: text/html; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8
 
 < ../manifest-filter/manifests/media.m3u8
