@@ -6,6 +6,8 @@
 
 Why? Video is a bit complex. Some manifests won't run on some devices because of the frame rate, or the bitrate, or other tags that may affect playback.
 
+![manifest_modifier](/assets/manifest_modifier.png)
+
 ## Running
 
 There are two ways to use this project: running it as a server or using it as a library.
