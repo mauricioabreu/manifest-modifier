@@ -48,7 +48,9 @@ impl Master {
         let min = opts.min.unwrap_or(0);
         let max = opts.max.unwrap_or(u64::MAX);
 
-        self.playlist.variants.retain(|v| v.bandwidth >= min && v.bandwidth <= max);
+        self.playlist
+            .variants
+            .retain(|v| v.bandwidth >= min && v.bandwidth <= max);
         self
     }
 }
@@ -58,26 +60,21 @@ impl Media {
         let mut acc = 0;
         let total_segments = self.playlist.segments.len();
 
-        match seconds {
-            Some(s) => {
-                self.playlist.segments = self
-                    .playlist
-                    .clone()
-                    .segments
-                    .iter()
-                    .rev()
-                    .take_while(|segment| {
-                        acc += segment.duration as u64;
-                        acc <= s
-                    })
-                    .cloned()
-                    .collect();
-                self.playlist.media_sequence +=
-                    (total_segments - self.playlist.segments.len()) as u64;
-                self
-            }
-            None => self,
+        if let Some(s) = seconds {
+            self.playlist.segments = self
+                .playlist
+                .segments
+                .iter()
+                .rev()
+                .take_while(|segment| {
+                    acc += segment.duration as u64;
+                    acc <= s
+                })
+                .cloned()
+                .collect();
+            self.playlist.media_sequence += (total_segments - self.playlist.segments.len()) as u64;
         }
+        self
     }
 
     pub fn trim(&mut self, opts: TrimFilter) -> &mut Self {
