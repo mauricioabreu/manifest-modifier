@@ -28,68 +28,85 @@ pub fn load_media(content: &[u8]) -> Result<MediaPlaylist, String> {
     }
 }
 
-pub fn filter_fps(pl: MasterPlaylist, rate: Option<f64>) -> MasterPlaylist {
-    match rate {
-        Some(r) => {
-            let mut mpl = pl.clone();
-            mpl.variants = pl
-                .variants
-                .into_iter()
-                .filter(|v| v.frame_rate == Some(r))
-                .collect::<Vec<m3u8_rs::VariantStream>>();
-            mpl
+pub struct Master {
+    pub playlist: MasterPlaylist,
+}
+
+pub struct Media {
+    pub playlist: MediaPlaylist,
+}
+
+impl Master {
+    pub fn filter_fps(&mut self, rate: Option<f64>) -> &mut Self {
+        match rate {
+            Some(r) => {
+                self.playlist.variants = self
+                    .playlist
+                    .clone()
+                    .variants
+                    .into_iter()
+                    .filter(|v| v.frame_rate == Some(r))
+                    .collect::<Vec<m3u8_rs::VariantStream>>();
+                self
+            }
+            None => self,
         }
-        None => pl,
+    }
+
+    pub fn filter_bandwidth(&mut self, opts: BandwidthFilter) -> &mut Self {
+        let min = opts.min.unwrap_or(0);
+        let max = opts.max.unwrap_or(u64::MAX);
+
+        self.playlist.variants = self
+            .playlist
+            .clone()
+            .variants
+            .into_iter()
+            .filter(|v| v.bandwidth >= min && v.bandwidth <= max)
+            .collect::<Vec<m3u8_rs::VariantStream>>();
+        self
     }
 }
 
-pub fn filter_bandwidth(pl: MasterPlaylist, opts: BandwidthFilter) -> MasterPlaylist {
-    let min = opts.min.unwrap_or(0);
-    let max = opts.max.unwrap_or(u64::MAX);
+impl Media {
+    pub fn filter_dvr(&mut self, seconds: Option<u64>) -> &mut Self {
+        let mut acc = 0;
+        let total_segments = self.playlist.segments.len();
 
-    let mut mpl = pl.clone();
-    mpl.variants = pl
-        .variants
-        .into_iter()
-        .filter(|v| v.bandwidth >= min && v.bandwidth <= max)
-        .collect::<Vec<m3u8_rs::VariantStream>>();
-    mpl
-}
-
-pub fn filter_dvr(pl: MediaPlaylist, seconds: Option<u64>) -> MediaPlaylist {
-    let mut acc = 0;
-    let mut mpl = pl.clone();
-
-    match seconds {
-        Some(s) => {
-            mpl.segments = pl
-                .segments
-                .iter()
-                .rev()
-                .take_while(|segment| {
-                    acc += segment.duration as u64;
-                    acc <= s
-                })
-                .cloned()
-                .collect();
-            mpl.media_sequence += (pl.segments.len() - mpl.segments.len()) as u64;
-            mpl
+        match seconds {
+            Some(s) => {
+                self.playlist.segments = self
+                    .playlist
+                    .clone()
+                    .segments
+                    .iter()
+                    .rev()
+                    .take_while(|segment| {
+                        acc += segment.duration as u64;
+                        acc <= s
+                    })
+                    .cloned()
+                    .collect();
+                self.playlist.media_sequence +=
+                    (total_segments - self.playlist.segments.len()) as u64;
+                self
+            }
+            None => self,
         }
-        None => pl,
     }
-}
 
-pub fn trim(pl: MediaPlaylist, opts: TrimFilter) -> MediaPlaylist {
-    let start = opts.start.unwrap_or(0);
-    let end = opts
-        .end
-        .unwrap_or_else(|| pl.segments.len().try_into().unwrap());
+    pub fn trim(&mut self, opts: TrimFilter) -> &mut Self {
+        let start = opts.start.unwrap_or(0);
+        let end = opts
+            .end
+            .unwrap_or_else(|| self.playlist.segments.len().try_into().unwrap());
 
-    let segments = &pl.segments[start as usize..end as usize];
-    let mut mpl = pl.clone();
-    mpl.segments = segments.to_vec();
-    mpl.media_sequence += (pl.segments.len() - mpl.segments.len()) as u64;
-    mpl
+        let segments = &self.playlist.segments[start as usize..end as usize];
+        let total_segments = self.playlist.segments.len();
+        self.playlist.segments = segments.to_vec();
+        self.playlist.media_sequence += (total_segments - self.playlist.segments.len()) as u64;
+        self
+    }
 }
 
 #[cfg(test)]
@@ -104,9 +121,12 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let nmp = filter_fps(master_playlist, Some(60.0));
+        let mut master = Master {
+            playlist: master_playlist,
+        };
+        let nmp = master.filter_fps(Some(60.0));
 
-        assert_eq!(nmp.variants.len(), 2);
+        assert_eq!(nmp.playlist.variants.len(), 2);
     }
 
     #[test]
@@ -116,15 +136,15 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let nmp = filter_bandwidth(
-            master_playlist,
-            BandwidthFilter {
-                min: Some(800000),
-                max: None,
-            },
-        );
+        let mut master = Master {
+            playlist: master_playlist,
+        };
+        let nmp = master.filter_bandwidth(BandwidthFilter {
+            min: Some(800000),
+            max: None,
+        });
 
-        assert_eq!(nmp.variants.len(), 3);
+        assert_eq!(nmp.playlist.variants.len(), 3);
     }
 
     #[test]
@@ -134,15 +154,15 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let nmp = filter_bandwidth(
-            master_playlist,
-            BandwidthFilter {
-                min: None,
-                max: Some(800000),
-            },
-        );
+        let mut master = Master {
+            playlist: master_playlist,
+        };
+        let nmp = master.filter_bandwidth(BandwidthFilter {
+            min: None,
+            max: Some(800000),
+        });
 
-        assert_eq!(nmp.variants.len(), 6);
+        assert_eq!(nmp.playlist.variants.len(), 6);
     }
 
     #[test]
@@ -152,15 +172,15 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let nmp = filter_bandwidth(
-            master_playlist,
-            BandwidthFilter {
-                min: Some(800000),
-                max: Some(2000000),
-            },
-        );
+        let mut master = Master {
+            playlist: master_playlist,
+        };
+        let nmp = master.filter_bandwidth(BandwidthFilter {
+            min: Some(800000),
+            max: Some(2000000),
+        });
 
-        assert_eq!(nmp.variants.len(), 3);
+        assert_eq!(nmp.playlist.variants.len(), 3);
     }
 
     #[test]
@@ -170,10 +190,13 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let nmp = filter_dvr(media_playlist, Some(15));
+        let mut media = Media {
+            playlist: media_playlist,
+        };
+        let nmp = media.filter_dvr(Some(15));
 
-        assert_eq!(nmp.segments.len(), 3);
-        assert_eq!(nmp.media_sequence, 320035373);
+        assert_eq!(nmp.playlist.segments.len(), 3);
+        assert_eq!(nmp.playlist.media_sequence, 320035373);
     }
 
     #[test]
@@ -183,10 +206,13 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let nmp = filter_dvr(media_playlist.clone(), Some(u64::MAX));
+        let mut media = Media {
+            playlist: media_playlist,
+        };
+        let nmp = media.filter_dvr(Some(u64::MAX));
 
-        assert_eq!(nmp.segments.len(), media_playlist.segments.len());
-        assert_eq!(nmp.media_sequence, 320035356);
+        assert_eq!(nmp.playlist.segments.len(), 20);
+        assert_eq!(nmp.playlist.media_sequence, 320035356);
     }
 
     #[test]
@@ -196,16 +222,16 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let nmp = trim(
-            media_playlist,
-            TrimFilter {
-                start: Some(5),
-                end: None,
-            },
-        );
+        let mut media = Media {
+            playlist: media_playlist,
+        };
+        let nmp = media.trim(TrimFilter {
+            start: Some(5),
+            end: None,
+        });
 
-        assert_eq!(nmp.segments.len(), 15);
-        assert_eq!(nmp.media_sequence, 320035361);
+        assert_eq!(nmp.playlist.segments.len(), 15);
+        assert_eq!(nmp.playlist.media_sequence, 320035361);
     }
 
     #[test]
@@ -215,16 +241,16 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let nmp = trim(
-            media_playlist,
-            TrimFilter {
-                start: None,
-                end: Some(5),
-            },
-        );
+        let mut media = Media {
+            playlist: media_playlist,
+        };
+        let nmp = media.trim(TrimFilter {
+            start: None,
+            end: Some(5),
+        });
 
-        assert_eq!(nmp.segments.len(), 5);
-        assert_eq!(nmp.media_sequence, 320035371);
+        assert_eq!(nmp.playlist.segments.len(), 5);
+        assert_eq!(nmp.playlist.media_sequence, 320035371);
     }
 
     #[test]
@@ -234,15 +260,15 @@ mod tests {
         file.read_to_end(&mut content).unwrap();
 
         let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let nmp = trim(
-            media_playlist,
-            TrimFilter {
-                start: Some(5),
-                end: Some(18),
-            },
-        );
+        let mut media = Media {
+            playlist: media_playlist,
+        };
+        let nmp = media.trim(TrimFilter {
+            start: Some(5),
+            end: Some(18),
+        });
 
-        assert_eq!(nmp.segments.len(), 13);
-        assert_eq!(nmp.media_sequence, 320035363);
+        assert_eq!(nmp.playlist.segments.len(), 13);
+        assert_eq!(nmp.playlist.media_sequence, 320035363);
     }
 }
