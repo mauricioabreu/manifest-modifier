@@ -1,3 +1,48 @@
+//! manifest-filter is a lib used to modify video manifests.
+//!
+//! # Table of contents
+//!
+//! - [Features](#features)
+//! - [Examples](#examples)
+//!
+//! # Features
+//!
+//! - Modify master playlists (filter variants by bandwidth, fps, etc)
+//! - Modify media playlists (DVR, trim segments)
+//!
+//! More features are coming soon.
+//!
+//! # Examples
+//!
+//! Below you can try the example used to filter only the variants that are 30fps.
+//!
+//! ```rust
+//! use manifest_filter::Master;
+//! use std::io::Read;
+//!
+//! let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
+//! let mut content: Vec<u8> = Vec::new();
+//! file.read_to_end(&mut content).unwrap();
+//!
+//! let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+//! let mut master = Master {
+//!     playlist: master_playlist,
+//! };
+//! master.filter_fps(Some(30.0));
+//! ```
+//!
+//! The result should be something like this
+//!
+//! ```not_rust
+//! #EXTM3U
+//! #EXT-X-VERSION:4
+//! #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-aach-96",LANGUAGE="en",NAME="English",DEFAULT=YES,AUTOSELECT=YES,CHANNELS="2"
+//! #EXT-X-STREAM-INF:BANDWIDTH=600000,AVERAGE-BANDWIDTH=600000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=384x216,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+//! variant-audio_1=96000-video=249984.m3u8
+//! #EXT-X-STREAM-INF:BANDWIDTH=800000,AVERAGE-BANDWIDTH=800000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=768x432,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+//! variant-audio_1=96000-video=1320960.m3u8
+//! ```
+
 use m3u8_rs::{MasterPlaylist, MediaPlaylist, Playlist};
 
 #[derive(Debug)]
@@ -28,15 +73,20 @@ pub fn load_media(content: &[u8]) -> Result<MediaPlaylist, String> {
     }
 }
 
+/// `Master` holds a reference to the master playlist. All
+/// functions implemented by this struct can be chained.
 pub struct Master {
     pub playlist: MasterPlaylist,
 }
 
+/// `Media` holds a reference to the media playlist. All
+/// functions implemented by this struct can be chained.
 pub struct Media {
     pub playlist: MediaPlaylist,
 }
 
 impl Master {
+    /// Filter variants from a master playlist based on the frame rate passed.
     pub fn filter_fps(&mut self, rate: Option<f64>) -> &mut Self {
         if let Some(r) = rate {
             self.playlist.variants.retain(|v| v.frame_rate == Some(r));
@@ -44,6 +94,13 @@ impl Master {
         self
     }
 
+    /// Filter variants from a master playlist based on the bandwidh passed.
+    ///
+    /// Variants can be filtered using `min` and `max` values for bandwidth.
+    ///
+    /// There's no need to pass a `min` value if you don't need to. The
+    /// same happens for `max` value. For `min` we will set to zero by default
+    /// and for the `max` we'll use the `u64::MAX` value.
     pub fn filter_bandwidth(&mut self, opts: BandwidthFilter) -> &mut Self {
         let min = opts.min.unwrap_or(0);
         let max = opts.max.unwrap_or(u64::MAX);
@@ -191,10 +248,10 @@ mod tests {
         let mut media = Media {
             playlist: media_playlist,
         };
-        let nmp = media.filter_dvr(Some(u64::MAX));
+        media.filter_dvr(Some(u64::MAX));
 
-        assert_eq!(nmp.playlist.segments.len(), 20);
-        assert_eq!(nmp.playlist.media_sequence, 320035356);
+        assert_eq!(media.playlist.segments.len(), 20);
+        assert_eq!(media.playlist.media_sequence, 320035356);
     }
 
     #[test]
