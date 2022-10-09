@@ -10,6 +10,12 @@ Content-Type: text/plain; charset=UTF-8
 
 < ../manifest-filter/manifests/master.m3u8
 
+### Mixing two filters (bandwidth and frame rate)
+POST http://localhost:3000/master?rate=30&min_bitrate=800000&max_bitrate=2000000
+Content-Type: text/plain; charset=UTF-8
+
+< ../manifest-filter/manifests/master.m3u8
+
 ### Filter DVR
 POST http://localhost:3000/media?dvr=15
 Content-Type: text/plain; charset=UTF-8
