@@ -8,9 +8,9 @@ Why? Video is a bit complex. Some manifests won't run on some devices because of
 
 ![manifest_modifier](/assets/manifest_modifier.png)
 
-## Running
+The image above is a perfect example that describes am usual problem: some devices can't play 60fps video. In order to solve this situation, we can use `manifest-modifier` to rewrite the manifest right before sending it to the users.
 
-There are two ways to use this project: running it as a server or using it as a library.
+There are two ways to use this project, either as a lib or a server. This project is dividied into two crates: `manifest-filter` and `manifest-server`. `manifest-server` is a server built on top of [axum](https://github.com/tokio-rs/axum) and can be used without requiring advanced knowledge of the Rust programming language.
 
 ## Features
 
