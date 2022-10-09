@@ -12,8 +12,10 @@ async fn main() {
     let app = Router::new()
         .route("/master", post(modify_master))
         .route("/media", post(modify_media));
-    let addr = env::var("LISTEN_ADDRESS").unwrap();
-    let socket_addr = addr.parse::<SocketAddr>().unwrap();
+    let addr = env::var("LISTEN_ADDRESS").expect("env var LISTEN_ADDRESS is not set");
+    let socket_addr = addr
+        .parse::<SocketAddr>()
+        .expect("value for LISTEN_ADDRESS must be like 127.0.0.1:3000");
     tracing::debug!("listening on {}", socket_addr);
     axum::Server::bind(&socket_addr)
         .serve(app.into_make_service())

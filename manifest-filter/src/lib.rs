@@ -15,7 +15,7 @@ pub struct TrimFilter {
 pub fn load_master(content: &[u8]) -> Result<MasterPlaylist, String> {
     match m3u8_rs::parse_playlist(content) {
         Result::Ok((_, Playlist::MasterPlaylist(pl))) => Ok(pl),
-        Result::Ok((_, Playlist::MediaPlaylist(_))) => Err("Must be a master playlist".to_string()),
+        Result::Ok((_, Playlist::MediaPlaylist(_))) => Err("must be a master playlist".to_string()),
         Result::Err(e) => Err(e.to_string()),
     }
 }
@@ -23,7 +23,7 @@ pub fn load_master(content: &[u8]) -> Result<MasterPlaylist, String> {
 pub fn load_media(content: &[u8]) -> Result<MediaPlaylist, String> {
     match m3u8_rs::parse_playlist(content) {
         Result::Ok((_, Playlist::MediaPlaylist(pl))) => Ok(pl),
-        Result::Ok((_, Playlist::MasterPlaylist(_))) => Err("Must be a media playlist".to_string()),
+        Result::Ok((_, Playlist::MasterPlaylist(_))) => Err("must be a media playlist".to_string()),
         Result::Err(e) => Err(e.to_string()),
     }
 }
