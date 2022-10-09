@@ -42,6 +42,11 @@
 //! #EXT-X-STREAM-INF:BANDWIDTH=800000,AVERAGE-BANDWIDTH=800000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=768x432,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
 //! variant-audio_1=96000-video=1320960.m3u8
 //! ```
+//!
+//! All functions can be chained. Call `filter_fps` to first remove variants with
+//! a frame rate different of the one choosen and call `filter_bandwith` right after to
+//! remove variants thare don't fit into the max/min range expected.
+//! The sampe applies for `Media`.
 
 use m3u8_rs::{MasterPlaylist, MediaPlaylist, Playlist};
 
