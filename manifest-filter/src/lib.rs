@@ -168,9 +168,9 @@ mod tests {
         let mut master = Master {
             playlist: master_playlist,
         };
-        let nmp = master.filter_fps(Some(60.0));
+        master.filter_fps(Some(60.0));
 
-        assert_eq!(nmp.playlist.variants.len(), 2);
+        assert_eq!(master.playlist.variants.len(), 2);
     }
 
     #[test]
@@ -183,12 +183,12 @@ mod tests {
         let mut master = Master {
             playlist: master_playlist,
         };
-        let nmp = master.filter_bandwidth(BandwidthFilter {
+        master.filter_bandwidth(BandwidthFilter {
             min: Some(800000),
             max: None,
         });
 
-        assert_eq!(nmp.playlist.variants.len(), 3);
+        assert_eq!(master.playlist.variants.len(), 3);
     }
 
     #[test]
@@ -201,12 +201,12 @@ mod tests {
         let mut master = Master {
             playlist: master_playlist,
         };
-        let nmp = master.filter_bandwidth(BandwidthFilter {
+        master.filter_bandwidth(BandwidthFilter {
             min: None,
             max: Some(800000),
         });
 
-        assert_eq!(nmp.playlist.variants.len(), 6);
+        assert_eq!(master.playlist.variants.len(), 6);
     }
 
     #[test]
@@ -219,12 +219,12 @@ mod tests {
         let mut master = Master {
             playlist: master_playlist,
         };
-        let nmp = master.filter_bandwidth(BandwidthFilter {
+        master.filter_bandwidth(BandwidthFilter {
             min: Some(800000),
             max: Some(2000000),
         });
 
-        assert_eq!(nmp.playlist.variants.len(), 3);
+        assert_eq!(master.playlist.variants.len(), 3);
     }
 
     #[test]
@@ -237,10 +237,10 @@ mod tests {
         let mut media = Media {
             playlist: media_playlist,
         };
-        let nmp = media.filter_dvr(Some(15));
+        media.filter_dvr(Some(15));
 
-        assert_eq!(nmp.playlist.segments.len(), 3);
-        assert_eq!(nmp.playlist.media_sequence, 320035373);
+        assert_eq!(media.playlist.segments.len(), 3);
+        assert_eq!(media.playlist.media_sequence, 320035373);
     }
 
     #[test]
@@ -269,13 +269,13 @@ mod tests {
         let mut media = Media {
             playlist: media_playlist,
         };
-        let nmp = media.trim(TrimFilter {
+        media.trim(TrimFilter {
             start: Some(5),
             end: None,
         });
 
-        assert_eq!(nmp.playlist.segments.len(), 15);
-        assert_eq!(nmp.playlist.media_sequence, 320035361);
+        assert_eq!(media.playlist.segments.len(), 15);
+        assert_eq!(media.playlist.media_sequence, 320035361);
     }
 
     #[test]
@@ -288,13 +288,13 @@ mod tests {
         let mut media = Media {
             playlist: media_playlist,
         };
-        let nmp = media.trim(TrimFilter {
+        media.trim(TrimFilter {
             start: None,
             end: Some(5),
         });
 
-        assert_eq!(nmp.playlist.segments.len(), 5);
-        assert_eq!(nmp.playlist.media_sequence, 320035371);
+        assert_eq!(media.playlist.segments.len(), 5);
+        assert_eq!(media.playlist.media_sequence, 320035371);
     }
 
     #[test]
@@ -307,12 +307,12 @@ mod tests {
         let mut media = Media {
             playlist: media_playlist,
         };
-        let nmp = media.trim(TrimFilter {
+        media.trim(TrimFilter {
             start: Some(5),
             end: Some(18),
         });
 
-        assert_eq!(nmp.playlist.segments.len(), 13);
-        assert_eq!(nmp.playlist.media_sequence, 320035363);
+        assert_eq!(media.playlist.segments.len(), 13);
+        assert_eq!(media.playlist.media_sequence, 320035363);
     }
 }
