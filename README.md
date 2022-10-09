@@ -1,4 +1,4 @@
-[![test](https://github.com/mauricioabreu/manifest-modifier/actions/workflows/rust.yml/badge.svg)](https://github.com/mauricioabreu/manifest-modifier/actions/workflows/rust.yml)
+[![test](https://github.com/mauricioabreu/manifest-modifier/actions/workflows/CI.yml/badge.svg)](https://github.com/mauricioabreu/manifest-modifier/actions/workflows/CI.yml)
 
 # Manifest modifier
 
