@@ -12,6 +12,35 @@ The image above is a perfect example that describes am usual problem: some devic
 
 There are two ways to use this project, either as a lib or a server. This project is dividied into two crates: `manifest-filter` and `manifest-server`. `manifest-server` is a server built on top of [axum](https://github.com/tokio-rs/axum) and can be used without requiring advanced knowledge of the Rust programming language.
 
+`manifest-filter` is the Rust code behind `manifest-server`. If you running your own server and can't use the `manifest-server`, no worries, you can use the same features by calling Rust code directly:
+
+```rust
+use manifest_filter::Master;
+use std::io::Read;
+
+let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
+let mut content: Vec<u8> = Vec::new();
+file.read_to_end(&mut content).unwrap();
+
+let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+let mut master = Master {
+    playlist: master_playlist,
+};
+master.filter_fps(Some(30.0));
+ ```
+
+The result should be  something like this
+
+```
+#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio-aach-96",LANGUAGE="en",NAME="English",DEFAULT=YES,AUTOSELECT=YES,CHANNELS="2"
+#EXT-X-STREAM-INF:BANDWIDTH=600000,AVERAGE-BANDWIDTH=600000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=384x216,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=249984.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=800000,AVERAGE-BANDWIDTH=800000,CODECS="mp4a.40.5,avc1.64001F",RESOLUTION=768x432,FRAME-RATE=30,AUDIO="audio-aach-96",CLOSED-CAPTIONS=NONE
+variant-audio_1=96000-video=1320960.m3u8
+```
+
 ## Features
 
 ### Master playlist
