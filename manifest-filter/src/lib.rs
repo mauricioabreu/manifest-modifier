@@ -14,7 +14,7 @@
 //!
 //! # Examples
 //!
-//! Below you can try the example used to filter only the variants that are 30fps.
+//! You can try the example below, used to filter only the variants that are 30fps.
 //!
 //! ```rust
 //! use manifest_filter::Master;
