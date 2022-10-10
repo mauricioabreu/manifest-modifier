@@ -132,7 +132,13 @@ impl Master {
             self.playlist.variants.swap(0, i.try_into().unwrap());
             self
         } else if let Some(c) = closest_bandwidth {
-            let (idx, _) = self.playlist.variants.iter().enumerate().min_by_key(|(_, v)| (c as i64 - v.bandwidth as i64).abs()).unwrap();
+            let (idx, _) = self
+                .playlist
+                .variants
+                .iter()
+                .enumerate()
+                .min_by_key(|(_, v)| (c as i64 - v.bandwidth as i64).abs())
+                .unwrap();
             let fv = self.playlist.variants.remove(idx);
             self.playlist.variants.insert(0, fv);
             self
