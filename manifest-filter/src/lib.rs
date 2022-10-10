@@ -118,6 +118,9 @@ impl Master {
 }
 
 impl Media {
+    /// Remove segments backwards from the media playlist, based on the duration
+    /// set. The duration is in seconds.
+    /// Media sequence will be affected: https://datatracker.ietf.org/doc/html/rfc8216#section-4.3.3.2
     pub fn filter_dvr(&mut self, seconds: Option<u64>) -> &mut Self {
         let mut acc = 0;
         let total_segments = self.playlist.segments.len();
@@ -139,6 +142,8 @@ impl Media {
         self
     }
 
+    /// Remove segments from the media playlist, based on the start/end passed.
+    /// Media sequence will be affected: https://datatracker.ietf.org/doc/html/rfc8216#section-4.3.3.2
     pub fn trim(&mut self, opts: TrimFilter) -> &mut Self {
         let start = opts.start.unwrap_or(0);
         let end = opts
