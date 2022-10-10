@@ -71,6 +71,9 @@ variant-audio_1=96000-video=3092992.m3u8
 variant-audio_1=96000-video=4686976.m3u8
 ```
 
+<details>
+<summary>Original playlist</summary>
+
 As you can see, the original playlist was slightly different:
 
 ```
@@ -90,6 +93,7 @@ variant-audio_1=96000-video=4686976.m3u8
 #EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=296000,CODECS="avc1.64001F",RESOLUTION=1280x720,URI="keyframes/variant-video=2029952.m3u8"
 #EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=684000,CODECS="avc1.640029",RESOLUTION=1920x1080,URI="keyframes/variant-video=4686976.m3u8"
 ```
+</details>
 
 **Frame rate** - filter variants based on a predefined *fps*:
 
@@ -115,7 +119,8 @@ variant-audio_1=96000-video=3092992.m3u8
 variant-audio_1=96000-video=4686976.m3u8
 ```
 
-Original playlist:
+<details>
+<summary>Original playlist</summary>
 
 ```
 #EXTM3U
@@ -134,6 +139,7 @@ variant-audio_1=96000-video=4686976.m3u8
 #EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=296000,CODECS="avc1.64001F",RESOLUTION=1280x720,URI="keyframes/variant-video=2029952.m3u8"
 #EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=684000,CODECS="avc1.640029",RESOLUTION=1920x1080,URI="keyframes/variant-video=4686976.m3u8"
 ```
+</details>
 
 ### Media playlist
 
@@ -165,7 +171,8 @@ variant-audio_1=96000-video=249984-320035702.ts
 variant-audio_1=96000-video=249984-320035701.ts
 ```
 
-Origin playlist:
+<details>
+<summary>Original playlist</summary>
 
 ```
 #EXTM3U
@@ -220,6 +227,7 @@ variant-audio_1=96000-video=249984-320035702.ts
 #EXTINF:5, no desc
 variant-audio_1=96000-video=249984-320035703.ts
 ```
+</details>
 
 ## Tests
 
