@@ -115,6 +115,31 @@ impl Master {
             .retain(|v| v.bandwidth >= min && v.bandwidth <= max);
         self
     }
+
+    /// Set the first variant to appear in the playlist for the one that
+    /// best suites the device needs. Most of the times such feature will
+    /// be used to skip the initial variant (too low for some devices).
+    ///
+    /// # Arguments
+    /// * `index` - an Option containing the index you want to be the first variant. Variants will be swapped.
+    /// * `closest_bandwidth` - an Option containing the closed bandwidth value you want for the first variant.
+    pub fn first_variant(
+        &mut self,
+        index: Option<u64>,
+        closest_bandwidth: Option<u64>,
+    ) -> &mut Self {
+        if let Some(i) = index {
+            self.playlist.variants.swap(0, i.try_into().unwrap());
+            self
+        } else if let Some(c) = closest_bandwidth {
+            let (idx, _) = self.playlist.variants.iter().enumerate().min_by_key(|(_, v)| (c as i64 - v.bandwidth as i64).abs()).unwrap();
+            let fv = self.playlist.variants.remove(idx);
+            self.playlist.variants.insert(0, fv);
+            self
+        } else {
+            self
+        }
+    }
 }
 
 impl Media {
@@ -230,6 +255,37 @@ mod tests {
         });
 
         assert_eq!(master.playlist.variants.len(), 3);
+    }
+
+    #[test]
+    fn set_first_variant_by_index() {
+        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
+        let mut content: Vec<u8> = Vec::new();
+        file.read_to_end(&mut content).unwrap();
+
+        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+        let mut master = Master {
+            playlist: master_playlist,
+        };
+        master.first_variant(Some(1), None);
+
+        assert_eq!(master.playlist.variants[0].bandwidth, 800000);
+        assert_eq!(master.playlist.variants[1].bandwidth, 600000);
+    }
+
+    #[test]
+    fn set_first_variant_by_closest_bandwidth() {
+        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
+        let mut content: Vec<u8> = Vec::new();
+        file.read_to_end(&mut content).unwrap();
+
+        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+        let mut master = Master {
+            playlist: master_playlist,
+        };
+        master.first_variant(None, Some(1650000));
+        assert_eq!(master.playlist.variants[0].bandwidth, 1500000);
+        assert_eq!(master.playlist.variants[1].bandwidth, 600000);
     }
 
     #[test]
