@@ -33,7 +33,8 @@ async fn modify_master(params: Query<Params>, body: Bytes) -> impl IntoResponse 
                     max: params.max_bitrate,
                 })
                 .filter_fps(params.rate)
-                .first_variant(params.variant_index, params.closest_bandwidth);
+                .first_variant_by_index(params.variant_index)
+                .first_variant_by_closest_bandwidth(params.closest_bandwidth);
 
             let mut v: Vec<u8> = Vec::new();
             master.playlist.write_to(&mut v).unwrap();

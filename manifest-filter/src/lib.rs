@@ -116,22 +116,30 @@ impl Master {
         self
     }
 
-    /// Set the first variant to appear in the playlist for the one that
+    /// Set the first variant by index to appear in the playlist for the one that
     /// best suites the device needs. Most of the times such feature will
     /// be used to skip the initial variant (too low for some devices).
     ///
     /// # Arguments
     /// * `index` - an Option containing the index you want to be the first variant. Variants will be swapped.
-    /// * `closest_bandwidth` - an Option containing the closed bandwidth value you want for the first variant.
-    pub fn first_variant(
-        &mut self,
-        index: Option<u64>,
-        closest_bandwidth: Option<u64>,
-    ) -> &mut Self {
+    pub fn first_variant_by_index(&mut self, index: Option<u64>) -> &mut Self {
         if let Some(i) = index {
             self.playlist.variants.swap(0, i.try_into().unwrap());
-            self
-        } else if let Some(c) = closest_bandwidth {
+        }
+        self
+    }
+
+    /// Set the first variant by closes bandwidth to appear in the playlist for the one that
+    /// best suites the device needs. Most of the times such feature will
+    /// be used to skip the initial variant (too low for some devices).
+    ///
+    /// # Arguments
+    /// * `closest_bandwidth` - an Option containing the closed bandwidth value you want for the first variant.
+    pub fn first_variant_by_closest_bandwidth(
+        &mut self,
+        closest_bandwidth: Option<u64>,
+    ) -> &mut Self {
+        if let Some(c) = closest_bandwidth {
             let (idx, _) = self
                 .playlist
                 .variants
@@ -141,10 +149,8 @@ impl Master {
                 .unwrap();
             let fv = self.playlist.variants.remove(idx);
             self.playlist.variants.insert(0, fv);
-            self
-        } else {
-            self
         }
+        self
     }
 }
 
@@ -273,7 +279,7 @@ mod tests {
         let mut master = Master {
             playlist: master_playlist,
         };
-        master.first_variant(Some(1), None);
+        master.first_variant_by_index(Some(1));
 
         assert_eq!(master.playlist.variants[0].bandwidth, 800000);
         assert_eq!(master.playlist.variants[1].bandwidth, 600000);
@@ -289,7 +295,7 @@ mod tests {
         let mut master = Master {
             playlist: master_playlist,
         };
-        master.first_variant(None, Some(1650000));
+        master.first_variant_by_closest_bandwidth(Some(1650000));
         assert_eq!(master.playlist.variants[0].bandwidth, 1500000);
         assert_eq!(master.playlist.variants[1].bandwidth, 600000);
     }
