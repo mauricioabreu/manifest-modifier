@@ -1,7 +1,15 @@
 [package]
 name = "manifest-server"
+description = "HTTP server that modifies video manifests"
 version = "0.1.0"
 edition = "2021"
+authors = ["Maurício Antunes <mauricio.abreua@gmail.com>"]
+license = "MIT"
+homepage = "https://github.com/mauricioabreu/manifest-modifier"
+repository = "https://github.com/mauricioabreu/manifest-modifier"
+readme = "../README.md"
+keywords = ["video", "hls"]
+categories = ["multimedia"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,4 +19,4 @@ tokio = { version = "1.21.2", features = ["full"] }
 tracing = "0.1.36"
 tracing-subscriber = { version = "0.3.15", features = ["env-filter"] }
 serde = { version = "1.0.145", features = ["derive"] }
-manifest-filter = { path = "../manifest-filter" }
+manifest-filter = { path = "../manifest-filter", version = "0.1.0"}
