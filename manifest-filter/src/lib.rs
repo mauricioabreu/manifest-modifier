@@ -120,11 +120,16 @@ impl Master {
     /// best suites the device needs. Most of the times such feature will
     /// be used to skip the initial variant (too low for some devices).
     ///
+    /// If the `index` passed in could cause "out of bounds" error, the playlist
+    /// will keep untouched.
+    ///
     /// # Arguments
     /// * `index` - an Option containing the index you want to be the first variant. Variants will be swapped.
     pub fn first_variant_by_index(&mut self, index: Option<u64>) -> &mut Self {
         if let Some(i) = index {
-            self.playlist.variants.swap(0, i.try_into().unwrap());
+            if i as usize <= self.playlist.variants.len() {
+                self.playlist.variants.swap(0, i.try_into().unwrap());
+            }
         }
         self
     }
@@ -134,7 +139,7 @@ impl Master {
     /// be used to skip the initial variant (too low for some devices).
     ///
     /// # Arguments
-    /// * `closest_bandwidth` - an Option containing the closed bandwidth value you want for the first variant.
+    /// * `closest_bandwidth` - an Option containing an approximate bandwidth value you want for the first variant.
     pub fn first_variant_by_closest_bandwidth(
         &mut self,
         closest_bandwidth: Option<u64>,
@@ -283,6 +288,22 @@ mod tests {
 
         assert_eq!(master.playlist.variants[0].bandwidth, 800000);
         assert_eq!(master.playlist.variants[1].bandwidth, 600000);
+    }
+
+    #[test]
+    fn set_first_variant_by_out_of_bounds_index() {
+        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
+        let mut content: Vec<u8> = Vec::new();
+        file.read_to_end(&mut content).unwrap();
+
+        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
+        let mut master = Master {
+            playlist: master_playlist,
+        };
+        master.first_variant_by_index(Some(100));
+
+        assert_eq!(master.playlist.variants[0].bandwidth, 600000);
+        assert_eq!(master.playlist.variants[1].bandwidth, 800000);
     }
 
     #[test]
