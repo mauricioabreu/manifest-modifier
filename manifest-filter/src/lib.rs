@@ -50,18 +50,6 @@
 
 use m3u8_rs::{MasterPlaylist, MediaPlaylist, Playlist};
 
-#[derive(Debug)]
-pub struct BandwidthFilter {
-    pub min: Option<u64>,
-    pub max: Option<u64>,
-}
-
-#[derive(Debug)]
-pub struct TrimFilter {
-    pub start: Option<u64>,
-    pub end: Option<u64>,
-}
-
 pub fn load_master(content: &[u8]) -> Result<MasterPlaylist, String> {
     match m3u8_rs::parse_playlist(content) {
         Result::Ok((_, Playlist::MasterPlaylist(pl))) => Ok(pl),
@@ -106,9 +94,9 @@ impl Master {
     /// There's no need to pass a `min` value if you don't need to. The
     /// same happens for `max` value. For `min` we will set to zero by default
     /// and for the `max` we'll use the `u64::MAX` value.
-    pub fn filter_bandwidth(&mut self, opts: BandwidthFilter) -> &mut Self {
-        let min = opts.min.unwrap_or(0);
-        let max = opts.max.unwrap_or(u64::MAX);
+    pub fn filter_bandwidth(&mut self, min: Option<u64>, max: Option<u64>) -> &mut Self {
+        let min = min.unwrap_or(0);
+        let max = max.unwrap_or(u64::MAX);
 
         self.playlist
             .variants
@@ -186,11 +174,9 @@ impl Media {
 
     /// Remove segments from the media playlist, based on the start/end passed.
     /// Media sequence will be affected: `<https://datatracker.ietf.org/doc/html/rfc8216#section-4.3.3.2>`
-    pub fn trim(&mut self, opts: TrimFilter) -> &mut Self {
-        let start = opts.start.unwrap_or(0);
-        let end = opts
-            .end
-            .unwrap_or_else(|| self.playlist.segments.len().try_into().unwrap());
+    pub fn trim(&mut self, start: Option<u64>, end: Option<u64>) -> &mut Self {
+        let start = start.unwrap_or(0);
+        let end = end.unwrap_or_else(|| self.playlist.segments.len().try_into().unwrap());
 
         let segments = &self.playlist.segments[start as usize..end as usize];
         let total_segments = self.playlist.segments.len();
@@ -239,10 +225,7 @@ mod tests {
     fn filter_min_bandwidth() {
         let mut master = build_master();
 
-        master.filter_bandwidth(BandwidthFilter {
-            min: Some(800000),
-            max: None,
-        });
+        master.filter_bandwidth(Some(800000), None);
 
         assert_eq!(master.playlist.variants.len(), 3);
     }
@@ -251,10 +234,7 @@ mod tests {
     fn filter_max_bandwidth() {
         let mut master = build_master();
 
-        master.filter_bandwidth(BandwidthFilter {
-            min: None,
-            max: Some(800000),
-        });
+        master.filter_bandwidth(None, Some(800000));
 
         assert_eq!(master.playlist.variants.len(), 6);
     }
@@ -263,10 +243,7 @@ mod tests {
     fn filter_min_and_max_bandwidth() {
         let mut master = build_master();
 
-        master.filter_bandwidth(BandwidthFilter {
-            min: Some(800000),
-            max: Some(2000000),
-        });
+        master.filter_bandwidth(Some(800000), Some(2000000));
 
         assert_eq!(master.playlist.variants.len(), 3);
     }
@@ -324,10 +301,7 @@ mod tests {
     fn trim_media_playlist_with_start_only() {
         let mut media = build_media();
 
-        media.trim(TrimFilter {
-            start: Some(5),
-            end: None,
-        });
+        media.trim(Some(5), None);
 
         assert_eq!(media.playlist.segments.len(), 15);
         assert_eq!(media.playlist.media_sequence, 320035361);
@@ -337,10 +311,7 @@ mod tests {
     fn trim_media_playlist_with_end_only() {
         let mut media = build_media();
 
-        media.trim(TrimFilter {
-            start: None,
-            end: Some(5),
-        });
+        media.trim(None, Some(5));
 
         assert_eq!(media.playlist.segments.len(), 5);
         assert_eq!(media.playlist.media_sequence, 320035371);
@@ -350,10 +321,7 @@ mod tests {
     fn trim_media_playlist_with_start_and_end() {
         let mut media = build_media();
 
-        media.trim(TrimFilter {
-            start: Some(5),
-            end: Some(18),
-        });
+        media.trim(Some(5), Some(18));
 
         assert_eq!(media.playlist.segments.len(), 13);
         assert_eq!(media.playlist.media_sequence, 320035363);

@@ -28,10 +28,8 @@ async fn modify_master(params: Query<Params>, body: Bytes) -> impl IntoResponse 
         Ok(pl) => {
             let mut master = manifest_filter::Master { playlist: pl };
             master
-                .filter_bandwidth(manifest_filter::BandwidthFilter {
-                    min: params.min_bitrate,
-                    max: params.max_bitrate,
-                })
+                .filter_bandwidth(params.min_bitrate, params.max_bitrate,
+                )
                 .filter_fps(params.rate)
                 .first_variant_by_index(params.variant_index)
                 .first_variant_by_closest_bandwidth(params.closest_bandwidth);
@@ -51,10 +49,7 @@ async fn modify_media(params: Query<Params>, body: Bytes) -> impl IntoResponse {
             let mut media = manifest_filter::Media { playlist: pl };
             media
                 .filter_dvr(params.dvr)
-                .trim(manifest_filter::TrimFilter {
-                    start: params.trim_start,
-                    end: params.trim_end,
-                });
+                .trim(params.trim_start,params.trim_end);
 
             let mut v: Vec<u8> = Vec::new();
             media.playlist.write_to(&mut v).unwrap();
