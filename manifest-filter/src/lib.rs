@@ -205,16 +205,31 @@ mod tests {
     use super::*;
     use std::io::Read;
 
-    #[test]
-    fn filter_60_fps() {
+    fn build_master() -> Master {
         let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
         let mut content: Vec<u8> = Vec::new();
         file.read_to_end(&mut content).unwrap();
 
         let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let mut master = Master {
+        Master {
             playlist: master_playlist,
-        };
+        }
+    }
+
+    fn build_media() -> Media {
+        let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
+        let mut content: Vec<u8> = Vec::new();
+        file.read_to_end(&mut content).unwrap();
+
+        let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
+        Media {
+            playlist: media_playlist,
+        }
+    }
+
+    #[test]
+    fn filter_60_fps() {
+        let mut master = build_master();
         master.filter_fps(Some(60.0));
 
         assert_eq!(master.playlist.variants.len(), 2);
@@ -222,14 +237,8 @@ mod tests {
 
     #[test]
     fn filter_min_bandwidth() {
-        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut master = build_master();
 
-        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let mut master = Master {
-            playlist: master_playlist,
-        };
         master.filter_bandwidth(BandwidthFilter {
             min: Some(800000),
             max: None,
@@ -240,14 +249,8 @@ mod tests {
 
     #[test]
     fn filter_max_bandwidth() {
-        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut master = build_master();
 
-        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let mut master = Master {
-            playlist: master_playlist,
-        };
         master.filter_bandwidth(BandwidthFilter {
             min: None,
             max: Some(800000),
@@ -258,14 +261,8 @@ mod tests {
 
     #[test]
     fn filter_min_and_max_bandwidth() {
-        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut master = build_master();
 
-        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let mut master = Master {
-            playlist: master_playlist,
-        };
         master.filter_bandwidth(BandwidthFilter {
             min: Some(800000),
             max: Some(2000000),
@@ -276,14 +273,8 @@ mod tests {
 
     #[test]
     fn set_first_variant_by_index() {
-        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut master = build_master();
 
-        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let mut master = Master {
-            playlist: master_playlist,
-        };
         master.first_variant_by_index(Some(1));
 
         assert_eq!(master.playlist.variants[0].bandwidth, 800000);
@@ -292,14 +283,8 @@ mod tests {
 
     #[test]
     fn set_first_variant_by_out_of_bounds_index() {
-        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut master = build_master();
 
-        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let mut master = Master {
-            playlist: master_playlist,
-        };
         master.first_variant_by_index(Some(100));
 
         assert_eq!(master.playlist.variants[0].bandwidth, 600000);
@@ -308,14 +293,8 @@ mod tests {
 
     #[test]
     fn set_first_variant_by_closest_bandwidth() {
-        let mut file = std::fs::File::open("manifests/master.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut master = build_master();
 
-        let (_, master_playlist) = m3u8_rs::parse_master_playlist(&content).unwrap();
-        let mut master = Master {
-            playlist: master_playlist,
-        };
         master.first_variant_by_closest_bandwidth(Some(1650000));
         assert_eq!(master.playlist.variants[0].bandwidth, 1500000);
         assert_eq!(master.playlist.variants[1].bandwidth, 600000);
@@ -323,14 +302,8 @@ mod tests {
 
     #[test]
     fn filter_dvr_with_short_duration() {
-        let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut media = build_media();
 
-        let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let mut media = Media {
-            playlist: media_playlist,
-        };
         media.filter_dvr(Some(15));
 
         assert_eq!(media.playlist.segments.len(), 3);
@@ -339,14 +312,8 @@ mod tests {
 
     #[test]
     fn filter_dvr_with_long_duration() {
-        let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut media = build_media();
 
-        let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let mut media = Media {
-            playlist: media_playlist,
-        };
         media.filter_dvr(Some(u64::MAX));
 
         assert_eq!(media.playlist.segments.len(), 20);
@@ -355,14 +322,8 @@ mod tests {
 
     #[test]
     fn trim_media_playlist_with_start_only() {
-        let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut media = build_media();
 
-        let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let mut media = Media {
-            playlist: media_playlist,
-        };
         media.trim(TrimFilter {
             start: Some(5),
             end: None,
@@ -374,14 +335,8 @@ mod tests {
 
     #[test]
     fn trim_media_playlist_with_end_only() {
-        let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut media = build_media();
 
-        let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let mut media = Media {
-            playlist: media_playlist,
-        };
         media.trim(TrimFilter {
             start: None,
             end: Some(5),
@@ -393,14 +348,8 @@ mod tests {
 
     #[test]
     fn trim_media_playlist_with_start_and_end() {
-        let mut file = std::fs::File::open("manifests/media.m3u8").unwrap();
-        let mut content: Vec<u8> = Vec::new();
-        file.read_to_end(&mut content).unwrap();
+        let mut media = build_media();
 
-        let (_, media_playlist) = m3u8_rs::parse_media_playlist(&content).unwrap();
-        let mut media = Media {
-            playlist: media_playlist,
-        };
         media.trim(TrimFilter {
             start: Some(5),
             end: Some(18),
