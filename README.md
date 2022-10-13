@@ -1,5 +1,6 @@
 [![test](https://github.com/mauricioabreu/manifest-modifier/actions/workflows/CI.yml/badge.svg)](https://github.com/mauricioabreu/manifest-modifier/actions/workflows/CI.yml)
-[![Crates.io](https://img.shields.io/crates/v/manifest-filter)](https://crates.io/crates/manifest-filter)
+[![Crates.io](https://img.shields.io/crates/v/manifest-filter?label=manifest-filter)](https://crates.io/crates/manifest-filter)
+[![Crates.io](https://img.shields.io/crates/v/manifest-server?label=manifest-server)](https://crates.io/crates/manifest-server)
 [![manifest-filter docs](https://docs.rs/manifest-filter/badge.svg)](https://docs.rs/manifest-filter)
 
 # Manifest modifier
