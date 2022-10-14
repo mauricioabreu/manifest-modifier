@@ -1,3 +1,15 @@
+//! manifest-server is an HTTP server you can use to modify video manifests.
+//! It is built on top of axum and relies on manifest handlers provided by `manifest-filter`.
+//!
+//! There are two routes: `/master` and `/media`
+//!
+//! [Params] describe the available parameters you can use to modify video manifests.
+//! Parameters are all optional and they are passed as query parameters. Example:
+//!
+//! ```not_rust
+//! /master?min_bitrate=800000&max_bitrate=2000000
+//! ```
+
 use axum::{
     body::Bytes, extract::Query, http::StatusCode, response::IntoResponse, routing::post, Router,
 };
@@ -68,14 +80,23 @@ async fn modify_media(params: Query<Params>, body: Bytes) -> impl IntoResponse {
     }
 }
 
+/// Query string params used to modify master and media manifests
 #[derive(Debug, Deserialize, Default)]
 struct Params {
+    /// Min bitrate present in the master manifest
     min_bitrate: Option<u64>,
+    /// Max bitrate present in the master manifest
     max_bitrate: Option<u64>,
+    /// Frame rate allowed to be present in the master manifest
     rate: Option<f64>,
+    /// DVR in seconds
     dvr: Option<u64>,
+    /// Trim start
     trim_start: Option<u64>,
+    /// Trim end
     trim_end: Option<u64>,
+    /// Which index must be set as the first media manifest
     variant_index: Option<u64>,
+    /// Which bandwidth must be set as the first media manifest
     closest_bandwidth: Option<u64>,
 }
