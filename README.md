@@ -51,7 +51,7 @@ The binary for `manifest-server` is `manifest_server`
 You must have `cargo` to install the manifest server:
 
 ```
-$ cargo install manifest-server`
+$ cargo install manifest-server
 ```
 
 There is no other way to install the server right now.
@@ -61,7 +61,7 @@ There is no other way to install the server right now.
 For the server to work, you need to export a variable `LISTEN_ADDRESS`
 
 ```
-$ LISTEN_ADDRESS=127.0.0.1:3000 manifest_server`
+$ LISTEN_ADDRESS=127.0.0.1:3000 manifest_server
 ```
 
 ## Features
